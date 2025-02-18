@@ -1,6 +1,6 @@
 # File Organizer
 
-A Bash script that automatically organizes files from common user directories (Downloads, Desktop, and Documents) into categorized folders within your Documents directory.
+A Bash script that automatically organizes files from common user directories (Downloads, Desktop, and Documents) into categorized folders within your Documents directory
 
 ## Features
 
