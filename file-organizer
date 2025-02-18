@@ -47,7 +47,7 @@ move_files() {
     # Skip if source directory doesn't exist
     if [ ! -d "$source_dir" ]; then
         return
-    }
+    fi
 
     # Skip if the source directory is one of our destination folders
     case "$source_dir" in
