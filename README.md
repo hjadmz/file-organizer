@@ -9,6 +9,7 @@ A Bash script that automatically organizes files from common user directories (D
 - Desktop
 - Documents
 
+
 Organizes files into categories:
 - Images
 - Documents
