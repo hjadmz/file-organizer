@@ -1,18 +1,5 @@
 #!/bin/bash
 
-# Set up logging
-exec 1> >(tee -a "$HOME/file_organizer.log") 2>&1
-echo "Starting organization script at $(date)"
-
-# Lock file to prevent multiple instances
-LOCK_FILE="/tmp/file_organizer.lock"
-if [ -f "$LOCK_FILE" ]; then
-    echo "Script is already running"
-    exit 1
-fi
-touch "$LOCK_FILE"
-trap "rm -f $LOCK_FILE" EXIT
-
 # Set the destination directory (Documents)
 DOCUMENTS_DIR="$HOME/Documents"
 
@@ -60,7 +47,15 @@ move_files() {
     # Skip if source directory doesn't exist
     if [ ! -d "$source_dir" ]; then
         return
-    fi
+    }
+
+    # Skip if the source directory is one of our destination folders
+    case "$source_dir" in
+        "$DOCUMENTS_DIR/Images" | "$DOCUMENTS_DIR/Documents" | "$DOCUMENTS_DIR/Audio" | \
+        "$DOCUMENTS_DIR/Video" | "$DOCUMENTS_DIR/Archives" | "$DOCUMENTS_DIR/Code")
+            return
+            ;;
+    esac
     
     echo -e "\nOrganizing files from $source_dir..."
     
@@ -105,5 +100,9 @@ move_files() {
 for dir in "${SOURCE_DIRS[@]}"; do
     move_files "$dir"
 done
+
+# Organize existing files in Documents directory
+echo -e "\nOrganizing existing files in Documents directory..."
+move_files "$DOCUMENTS_DIR"
 
 echo -e "\nFile organization complete!"
