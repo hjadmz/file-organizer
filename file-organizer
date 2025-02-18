@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Set the destination directory (Documents)
+DOCUMENTS_DIR="$HOME/Documents"
+
+# Define source directories to monitor (common user directories)
+declare -a SOURCE_DIRS=(
+    "$HOME/Downloads"
+    "$HOME/Desktop"
+    "$HOME/Documents"
+)
+
+# Check if Documents directory exists, if not create it
+if [ ! -d "$DOCUMENTS_DIR" ]; then
+    mkdir -p "$DOCUMENTS_DIR"
+    echo "Created Documents directory"
+fi
+
+# Create necessary directories only in Documents folder
+cd "$DOCUMENTS_DIR"
+
+declare -a FOLDERS=(
+    "Images"
+    "Documents"
+    "Audio"
+    "Video"
+    "Archives"
+    "Code"
+)
+
+# Create folders if they don't exist and report status
+for folder in "${FOLDERS[@]}"; do
+    if [ ! -d "$folder" ]; then
+        mkdir -p "$folder"
+        echo "Created directory: $folder"
+    fi
+done
+
+# Function to check if a directory is empty
+is_empty() {
+    [ -z "$(ls -A "$1")" ]
+}
+
+# Function to move files from a source directory
+move_files() {
+    local source_dir="$1"
+    
+    # Skip if source directory doesn't exist
+    if [ ! -d "$source_dir" ]; then
+        return
+    fi
+    
+    echo -e "\nOrganizing files from $source_dir..."
+    
+    # Images
+    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" -o -iname "*.webp" \) | grep -q .; then
+        find "$source_dir" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" -o -iname "*.webp" \) -exec mv {} "$DOCUMENTS_DIR/Images/" \;
+        echo "Moved image files to Images/"
+    fi
+
+    # Documents
+    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.pdf" -o -iname "*.doc" -o -iname "*.docx" -o -iname "*.txt" -o -iname "*.rtf" -o -iname "*.xlsx" -o -iname "*.xls" -o -iname "*.pptx" -o -iname "*.ppt" \) | grep -q .; then
+        find "$source_dir" -maxdepth 1 -type f \( -iname "*.pdf" -o -iname "*.doc" -o -iname "*.docx" -o -iname "*.txt" -o -iname "*.rtf" -o -iname "*.xlsx" -o -iname "*.xls" -o -iname "*.pptx" -o -iname "*.ppt" \) -exec mv {} "$DOCUMENTS_DIR/Documents/" \;
+        echo "Moved document files to Documents/"
+    fi
+
+    # Audio
+    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp3" -o -iname "*.wav" -o -iname "*.m4a" -o -iname "*.aac" -o -iname "*.flac" -o -iname "*.ogg" \) | grep -q .; then
+        find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp3" -o -iname "*.wav" -o -iname "*.m4a" -o -iname "*.aac" -o -iname "*.flac" -o -iname "*.ogg" \) -exec mv {} "$DOCUMENTS_DIR/Audio/" \;
+        echo "Moved audio files to Audio/"
+    fi
+
+    # Video
+    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.wmv" \) | grep -q .; then
+        find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.wmv" \) -exec mv {} "$DOCUMENTS_DIR/Video/" \;
+        echo "Moved video files to Video/"
+    fi
+
+    # Archives
+    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.zip" -o -iname "*.rar" -o -iname "*.7z" -o -iname "*.tar" -o -iname "*.gz" \) | grep -q .; then
+        find "$source_dir" -maxdepth 1 -type f \( -iname "*.zip" -o -iname "*.rar" -o -iname "*.7z" -o -iname "*.tar" -o -iname "*.gz" \) -exec mv {} "$DOCUMENTS_DIR/Archives/" \;
+        echo "Moved archive files to Archives/"
+    fi
+
+    # Code
+    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.py" -o -iname "*.java" -o -iname "*.cpp" -o -iname "*.c" -o -iname "*.h" -o -iname "*.js" -o -iname "*.html" -o -iname "*.css" -o -iname "*.php" -o -iname "*.sh" -o -iname "*.rb" -o -iname "*.go" -o -iname "*.rs" -o -iname "*.swift" \) | grep -q .; then
+        find "$source_dir" -maxdepth 1 -type f \( -iname "*.py" -o -iname "*.java" -o -iname "*.cpp" -o -iname "*.c" -o -iname "*.h" -o -iname "*.js" -o -iname "*.html" -o -iname "*.css" -o -iname "*.php" -o -iname "*.sh" -o -iname "*.rb" -o -iname "*.go" -o -iname "*.rs" -o -iname "*.swift" \) -exec mv {} "$DOCUMENTS_DIR/Code/" \;
+        echo "Moved code files to Code/"
+    fi
+}
+
+# Process each source directory
+for dir in "${SOURCE_DIRS[@]}"; do
+    move_files "$dir"
+done
+
+echo -e "\nFile organization complete!"
