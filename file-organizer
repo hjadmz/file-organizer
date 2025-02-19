@@ -42,11 +42,10 @@ FILE_TYPES=(
     ["dev/data"]="json xml css html htm"
     
     # Documents
-    ["documents/text"]="txt rtf doc docx pages"
+    ["documents/text"]="txt rtf doc docx pages md markdown"
     ["documents/spreadsheets"]="csv xlsx xls numbers ods"
     ["documents/presentations"]="ppt pptx key odp"
     ["documents/reference"]="pdf epub mobi"
-    ["documents/markdown"]="md markdown"
     
     # Media
     ["media/images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw icns" # Added icns
