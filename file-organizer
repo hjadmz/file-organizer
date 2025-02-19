@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Check if bash version supports associative arrays (version 4+)
+if ((BASH_VERSINFO[0] < 4)); then
+    echo "This script requires bash version 4 or higher"
+    echo "Current bash version: $BASH_VERSION"
+    exit 1
+fi
+
 # Enable strict error handling
 set -euo pipefail
 IFS=$'\n\t'
@@ -26,12 +33,13 @@ FILE_TYPES=(
     ["dev/languages/sql"]="sql"
     ["dev/languages/swift"]="swift storyboard xib"
     ["dev/languages/php"]="php"
+    ["dev/languages/applescript"]="scpt applescript scptd" # Added AppleScript
     ["dev/languages/other"]="rb go rs kt scala pl pm r cs fs vb lua"
     
     # Development - Other categories
     ["dev/database"]="db sqlite db3 bson"
     ["dev/config"]="env yaml yml plist conf ini toml properties"
-    ["dev/data"]="json xml css html htm"  # Moved web files to data as they're just files now
+    ["dev/data"]="json xml css html htm"
     
     # Documents
     ["documents/text"]="txt rtf doc docx pages"
@@ -41,7 +49,7 @@ FILE_TYPES=(
     ["documents/markdown"]="md markdown"
     
     # Media
-    ["media/images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw"
+    ["media/images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw icns" # Added icns
     ["media/audio"]="mp3 wav m4a aac flac alac aiff ogg"
     ["media/video"]="mp4 mov mkv avi wmv m4v webm"
     ["media/design"]="psd ai fig sketch xd afdesign eps svg"
@@ -50,6 +58,13 @@ FILE_TYPES=(
     ["system/installers"]="dmg pkg exe msi app"
     ["system/backups"]="zip rar 7z tar gz bak backup"
     ["system/logs"]="log crash"
+    ["system/macos"]="command workflow alfredworkflow terminal" # Added macOS specific
+    
+    # macOS Specific
+    ["macos/preferences"]="plist prefPane" # System preferences
+    ["macos/shortcuts"]="webloc url" # URL and web shortcuts
+    ["macos/services"]="service" # macOS services
+    ["macos/quicklook"]="qlgenerator" # QuickLook plugins
     
     # Others
     ["others"]="*"
