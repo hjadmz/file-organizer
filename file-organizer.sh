@@ -25,45 +25,45 @@ SOURCE_DIRS=(
 declare -A FILE_TYPES
 FILE_TYPES=(
     # Development Languages - Main ones as specified
-    ["dev/languages/python"]="py pyc ipynb"
-    ["dev/languages/java"]="java class jar"
-    ["dev/languages/javascript"]="js jsx ts tsx"
-    ["dev/languages/c/c"]="c h"
-    ["dev/languages/c/cpp"]="cpp hpp"
-    ["dev/languages/sql"]="sql"
-    ["dev/languages/swift"]="swift storyboard xib"
-    ["dev/languages/php"]="php"
-    ["dev/languages/applescript"]="scpt applescript scptd"
-    ["dev/languages/other"]="rb go rs kt scala pl pm r cs fs vb lua"
+    ["Dev/Languages/Python"]="py pyc ipynb"
+    ["Dev/Languages/Java"]="java class jar"
+    ["Dev/Languages/JavaScript"]="js jsx ts tsx"
+    ["Dev/Languages/C/C"]="c h"
+    ["Dev/Languages/C/CPP"]="cpp hpp"
+    ["Dev/Languages/SQL"]="sql"
+    ["Dev/Languages/Swift"]="swift storyboard xib"
+    ["Dev/Languages/PHP"]="php"
+    ["Dev/Languages/AppleScript"]="scpt applescript scptd"
+    ["Dev/Languages/Other"]="rb go rs kt scala pl pm r cs fs vb lua"
     
     # Development - Other categories
-    ["dev/database"]="db sqlite db3 bson"
-    ["dev/config"]="env yaml yml plist conf ini toml properties"
-    ["dev/data"]="json xml css html htm"
+    ["Dev/Database"]="db sqlite db3 bson"
+    ["Dev/Config"]="env yaml yml plist conf ini toml properties"
+    ["Dev/Data"]="json xml css html htm"
     
     # Documents
-    ["documents/text"]="txt rtf doc docx pages md markdown"
-    ["documents/spreadsheets"]="csv xlsx xls numbers ods"
-    ["documents/presentations"]="ppt pptx key odp"
-    ["documents/reference"]="pdf epub mobi"
+    ["Documents/Text"]="txt rtf doc docx pages md markdown"
+    ["Documents/Spreadsheets"]="csv xlsx xls numbers ods"
+    ["Documents/Presentations"]="ppt pptx key odp"
+    ["Documents/Reference"]="pdf epub mobi"
     
     # Media
-    ["media/images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw icns"
-    ["media/audio"]="mp3 wav m4a aac flac alac aiff ogg"
-    ["media/video"]="mp4 mov mkv avi wmv m4v webm"
-    ["media/design"]="psd ai fig sketch xd afdesign eps svg"
+    ["Media/Images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw icns"
+    ["Media/Audio"]="mp3 wav m4a aac flac alac aiff ogg"
+    ["Media/Video"]="mp4 mov mkv avi wmv m4v webm"
+    ["Media/Design"]="psd ai fig sketch xd afdesign eps svg"
     
     # System (merged with macOS)
-    ["system/installers"]="dmg pkg exe msi app"
-    ["system/backups"]="zip rar 7z tar gz bak backup"
-    ["system/logs"]="log crash"
-    ["system/automation"]="command workflow alfredworkflow terminal service"
-    ["system/preferences"]="plist prefPane"
-    ["system/shortcuts"]="webloc url"
-    ["system/plugins"]="qlgenerator"
+    ["System/Installers"]="dmg pkg exe msi app"
+    ["System/Backups"]="zip rar 7z tar gz bak backup"
+    ["System/Logs"]="log crash"
+    ["System/Automation"]="command workflow alfredworkflow terminal service"
+    ["System/Preferences"]="plist prefPane"
+    ["System/Shortcuts"]="webloc url"
+    ["System/Plugins"]="qlgenerator"
     
     # Others
-    ["others"]="*"
+    ["Others"]="*"
 )
 
 # Function to get destination based on extension
