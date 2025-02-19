@@ -1,108 +1,174 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Set the destination directory (Documents)
-DOCUMENTS_DIR="$HOME/Documents"
-
-# Define source directories to monitor (common user directories)
-declare -a SOURCE_DIRS=(
-    "$HOME/Downloads"
-    "$HOME/Desktop"
-)
-
-# Check if Documents directory exists, if not create it
-if [ ! -d "$DOCUMENTS_DIR" ]; then
-    mkdir -p "$DOCUMENTS_DIR"
-    echo "Created Documents directory"
+# Check if bash version supports associative arrays (version 4+)
+if ((BASH_VERSINFO[0] < 4)); then
+    echo "This script requires bash version 4 or higher"
+    echo "Current bash version: $BASH_VERSION"
+    exit 1
 fi
 
-# Create necessary directories only in Documents folder
-cd "$DOCUMENTS_DIR"
+# Enable strict error handling
+set -euo pipefail
+IFS=$'\n\t'
 
-declare -a FOLDERS=(
-    "Images"
-    "Documents"
-    "Audio"
-    "Video"
-    "Archives"
-    "Code"
+# Set the base organization directory
+ORGANIZE_ROOT="$HOME/Organized"
+
+# Define source directories to monitor
+SOURCE_DIRS=(
+    "$HOME/Downloads"
+    "$HOME/Desktop"
+    "$HOME/Documents"
 )
 
-# Create folders if they don't exist and report status
-for folder in "${FOLDERS[@]}"; do
-    if [ ! -d "$folder" ]; then
-        mkdir -p "$folder"
-        echo "Created directory: $folder"
-    fi
-done
-
-# Function to check if a directory is empty
-is_empty() {
-    [ -z "$(ls -A "$1")" ]
-}
-
-# Function to move files from a source directory
-move_files() {
-    local source_dir="$1"
+# Declare and populate the associative array
+declare -A FILE_TYPES
+FILE_TYPES=(
+    # Development Languages - Main ones as specified
+    ["dev/languages/python"]="py pyc ipynb"
+    ["dev/languages/java"]="java class jar"
+    ["dev/languages/javascript"]="js jsx ts tsx"
+    ["dev/languages/c/c"]="c h"
+    ["dev/languages/c/cpp"]="cpp hpp"
+    ["dev/languages/sql"]="sql"
+    ["dev/languages/swift"]="swift storyboard xib"
+    ["dev/languages/php"]="php"
+    ["dev/languages/other"]="rb go rs kt scala pl pm r cs fs vb lua"
     
-    # Skip if source directory doesn't exist
-    if [ ! -d "$source_dir" ]; then
+    # Development - Other categories
+    ["dev/database"]="db sqlite db3 bson"
+    ["dev/config"]="env yaml yml plist conf ini toml properties"
+    ["dev/data"]="json xml css html htm"  # Moved web files to data as they're just files now
+    
+    # Documents
+    ["documents/text"]="txt rtf doc docx pages"
+    ["documents/spreadsheets"]="csv xlsx xls numbers ods"
+    ["documents/presentations"]="ppt pptx key odp"
+    ["documents/reference"]="pdf epub mobi"
+    ["documents/markdown"]="md markdown"
+    
+    # Media
+    ["media/images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw"
+    ["media/audio"]="mp3 wav m4a aac flac alac aiff ogg"
+    ["media/video"]="mp4 mov mkv avi wmv m4v webm"
+    ["media/design"]="psd ai fig sketch xd afdesign eps svg"
+    
+    # System
+    ["system/installers"]="dmg pkg exe msi app"
+    ["system/backups"]="zip rar 7z tar gz bak backup"
+    ["system/logs"]="log crash"
+    
+    # Others
+    ["others"]="*"
+)
+
+# Function to get destination based on extension
+get_destination() {
+    local file="$1"
+    
+    # Special handling for .app folders
+    if [[ -d "$file" && "$file" == *.app ]]; then
+        echo "$ORGANIZE_ROOT/system/installers"
         return
     fi
-
-    # Skip if the source directory is one of our destination folders
-    case "$source_dir" in
-        "$DOCUMENTS_DIR/Images" | "$DOCUMENTS_DIR/Documents" | "$DOCUMENTS_DIR/Audio" | \
-        "$DOCUMENTS_DIR/Video" | "$DOCUMENTS_DIR/Archives" | "$DOCUMENTS_DIR/Code")
+    
+    # Handle files without extension
+    if [[ "$file" != *.* ]]; then
+        echo "$ORGANIZE_ROOT/others"
+        return
+    fi
+    
+    local ext="${file##*.}"
+    ext="$(echo "$ext" | tr '[:upper:]' '[:lower:]')"  # Convert to lowercase
+    
+    # Search through defined file types
+    for dir in "${!FILE_TYPES[@]}"; do
+        if [[ " ${FILE_TYPES[$dir]} " =~ " $ext " ]]; then
+            echo "$ORGANIZE_ROOT/$dir"
             return
-            ;;
-    esac
+        fi
+    done
     
-    echo -e "\nOrganizing files from $source_dir..."
+    # If no match found, return others directory
+    echo "$ORGANIZE_ROOT/others"
+}
+
+# Function to safely move files
+safe_move() {
+    local source="$1"
+    local dest_dir="$2"
+    local basename_source=$(basename "$source")
+    local dest="$dest_dir/$basename_source"
     
-    # Images
-    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" -o -iname "*.webp" \) | grep -q .; then
-        find "$source_dir" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" -o -iname "*.webp" \) -exec mv -n {} "$DOCUMENTS_DIR/Images/" \;
-        echo "Moved image files to Images/"
+    # Skip if source doesn't exist
+    [[ ! -e "$source" ]] && return 1
+    
+    # Create destination directory
+    mkdir -p "$dest_dir"
+    
+    # If destination exists, add timestamp
+    if [[ -e "$dest" ]]; then
+        local timestamp=$(date +%Y%m%d_%H%M%S)
+        dest="$dest_dir/${basename_source%.*}_${timestamp}.${basename_source##*.}"
     fi
-
-    # Documents
-    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.pdf" -o -iname "*.doc" -o -iname "*.docx" -o -iname "*.txt" -o -iname "*.rtf" -o -iname "*.xlsx" -o -iname "*.xls" -o -iname "*.pptx" -o -iname "*.ppt" \) | grep -q .; then
-        find "$source_dir" -maxdepth 1 -type f \( -iname "*.pdf" -o -iname "*.doc" -o -iname "*.docx" -o -iname "*.txt" -o -iname "*.rtf" -o -iname "*.xlsx" -o -iname "*.xls" -o -iname "*.pptx" -o -iname "*.ppt" \) -exec mv -n {} "$DOCUMENTS_DIR/Documents/" \;
-        echo "Moved document files to Documents/"
-    fi
-
-    # Audio
-    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp3" -o -iname "*.wav" -o -iname "*.m4a" -o -iname "*.aac" -o -iname "*.flac" -o -iname "*.ogg" \) | grep -q .; then
-        find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp3" -o -iname "*.wav" -o -iname "*.m4a" -o -iname "*.aac" -o -iname "*.flac" -o -iname "*.ogg" \) -exec mv -n {} "$DOCUMENTS_DIR/Audio/" \;
-        echo "Moved audio files to Audio/"
-    fi
-
-    # Video
-    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.wmv" \) | grep -q .; then
-        find "$source_dir" -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.wmv" \) -exec mv -n {} "$DOCUMENTS_DIR/Video/" \;
-        echo "Moved video files to Video/"
-    fi
-
-    # Archives
-    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.zip" -o -iname "*.rar" -o -iname "*.7z" -o -iname "*.tar" -o -iname "*.gz" \) | grep -q .; then
-        find "$source_dir" -maxdepth 1 -type f \( -iname "*.zip" -o -iname "*.rar" -o -iname "*.7z" -o -iname "*.tar" -o -iname "*.gz" \) -exec mv -n {} "$DOCUMENTS_DIR/Archives/" \;
-        echo "Moved archive files to Archives/"
-    fi
-
-    # Code
-    if find "$source_dir" -maxdepth 1 -type f \( -iname "*.py" -o -iname "*.java" -o -iname "*.cpp" -o -iname "*.c" -o -iname "*.h" -o -iname "*.js" -o -iname "*.html" -o -iname "*.css" -o -iname "*.php" -o -iname "*.sh" -o -iname "*.rb" -o -iname "*.go" -o -iname "*.rs" -o -iname "*.swift" \) | grep -q .; then
-        find "$source_dir" -maxdepth 1 -type f \( -iname "*.py" -o -iname "*.java" -o -iname "*.cpp" -o -iname "*.c" -o -iname "*.h" -o -iname "*.js" -o -iname "*.html" -o -iname "*.css" -o -iname "*.php" -o -iname "*.sh" -o -iname "*.rb" -o -iname "*.go" -o -iname "*.rs" -o -iname "*.swift" \) -exec mv -n {} "$DOCUMENTS_DIR/Code/" \;
-        echo "Moved code files to Code/"
+    
+    # Perform the move
+    if mv -n "$source" "$dest" 2>/dev/null; then
+        echo "Moved: $source → $dest"
+        return 0
+    else
+        echo "Failed to move: $source"
+        return 1
     fi
 }
 
-# Process each source directory
-for dir in "${SOURCE_DIRS[@]}"; do
-    move_files "$dir"
+# Function to print script header
+print_header() {
+    echo "======================================"
+    echo "       File Organization Script       "
+    echo "======================================"
+    echo "Organization root: $ORGANIZE_ROOT"
+    echo "Source directories:"
+    for dir in "${SOURCE_DIRS[@]}"; do
+        echo "  - $dir"
+    done
+    echo "======================================"
+}
+
+# Main script execution starts here
+print_header
+
+# Create all necessary directories
+echo "Creating directory structure..."
+for dir in "${!FILE_TYPES[@]}"; do
+    mkdir -p "$ORGANIZE_ROOT/$dir"
 done
 
-# Organize existing files in Documents directory
-echo -e "\nOrganizing existing files in Documents directory..."
-move_files "$DOCUMENTS_DIR"
+# Main organization loop
+echo "Starting file organization..."
 
-echo -e "\nFile organization complete!"
+for src_dir in "${SOURCE_DIRS[@]}"; do
+    if [[ ! -d "$src_dir" ]]; then
+        echo "Warning: Source directory '$src_dir' not found, skipping..."
+        continue
+    fi
+    
+    echo "Processing: $src_dir"
+    
+    # Find all files and .app folders, excluding hidden files
+    while IFS= read -r -d $'\0' item; do
+        # Skip if item is a directory but not an .app bundle
+        if [[ -d "$item" && "$item" != *.app ]]; then
+            continue
+        fi
+        
+        # Get destination and move file
+        dest_dir=$(get_destination "$item")
+        safe_move "$item" "$dest_dir"
+    done < <(find "$src_dir" -maxdepth 1 \( -type f -o \( -type d -name "*.app" \) \) -not -name ".*" -print0 2>/dev/null)
+done
+
+echo "======================================"
+echo "Organization complete!"
+echo "Files have been organized in: $ORGANIZE_ROOT"
+echo "======================================"
