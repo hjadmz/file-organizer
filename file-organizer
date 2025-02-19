@@ -33,7 +33,7 @@ FILE_TYPES=(
     ["dev/languages/sql"]="sql"
     ["dev/languages/swift"]="swift storyboard xib"
     ["dev/languages/php"]="php"
-    ["dev/languages/applescript"]="scpt applescript scptd" # Added AppleScript
+    ["dev/languages/applescript"]="scpt applescript scptd"
     ["dev/languages/other"]="rb go rs kt scala pl pm r cs fs vb lua"
     
     # Development - Other categories
@@ -48,22 +48,19 @@ FILE_TYPES=(
     ["documents/reference"]="pdf epub mobi"
     
     # Media
-    ["media/images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw icns" # Added icns
+    ["media/images"]="jpg jpeg png heic webp tiff gif raw cr2 nef arw icns"
     ["media/audio"]="mp3 wav m4a aac flac alac aiff ogg"
     ["media/video"]="mp4 mov mkv avi wmv m4v webm"
     ["media/design"]="psd ai fig sketch xd afdesign eps svg"
     
-    # System
+    # System (merged with macOS)
     ["system/installers"]="dmg pkg exe msi app"
     ["system/backups"]="zip rar 7z tar gz bak backup"
     ["system/logs"]="log crash"
-    ["system/macos"]="command workflow alfredworkflow terminal" # Added macOS specific
-    
-    # macOS Specific
-    ["macos/preferences"]="plist prefPane" # System preferences
-    ["macos/shortcuts"]="webloc url" # URL and web shortcuts
-    ["macos/services"]="service" # macOS services
-    ["macos/quicklook"]="qlgenerator" # QuickLook plugins
+    ["system/automation"]="command workflow alfredworkflow terminal service"
+    ["system/preferences"]="plist prefPane"
+    ["system/shortcuts"]="webloc url"
+    ["system/plugins"]="qlgenerator"
     
     # Others
     ["others"]="*"
